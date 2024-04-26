@@ -1,0 +1,31 @@
+# .sqa/config.yml - jenkins-pipeline-library configuration file
+sqa_criteria:
+  qc_style:
+    repos:
+      ai4os-audio-classification-tf:
+        container: thisrepo-testing
+        tox:
+          tox_file: tox.ini
+          testenv:
+            - qc.sty
+  qc_coverage:
+    repos:
+      ai4os-audio-classification-tf:
+        container: thisrepo-testing
+        tox:
+          tox_file: tox.ini
+          testenv:
+            - qc.cov
+  qc_security:
+    repos:
+      ai4os-audio-classification-tf:
+        container: thisrepo-testing
+        tox:
+          tox_file: tox.ini
+          testenv:
+            - qc.sec
+
+environment:
+  LANG: C.UTF-8
+
+timeout: 600
