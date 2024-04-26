@@ -1,0 +1,53 @@
+{
+    "title": "Train an audio classifier",
+    "summary": "Train your own audio classifier with your custom dataset. It comes also pretrained on the 527 AudioSet classes. ",
+    "description": [
+        "This is a plug-and-play tool to perform audio classification with Deep Learning.",
+        "It allows the user to classify their samples of audio as well as training their",
+        "own classifier for a custom problem.\n",
+
+        "The classifier is currently pretrained on the 527 high-level classes from the",
+        "[AudioSet](https://research.google.com/audioset/) dataset.\n",
+
+        "The PREDICT method expects an audio file as input (or the url of a audio file) and will return a JSON with ",
+        "the top 5 predictions. Most audio file formats are supported (see [FFMPEG](https://www.ffmpeg.org/) compatible formats).\n",
+
+        "<img class='fit', src='https://raw.githubusercontent.com/deephdc/DEEP-OC-audio-classification-tf/master/images/demo.png'/>\n",
+
+        "**References**\n",
+        "Jort F. Gemmeke, Daniel P. W. Ellis, Dylan Freedman, Aren Jansen, Wade Lawrence, R. Channing Moore, Manoj Plakal, Marvin Ritter,['Audio set: An ontology and human-labeled dataset for audio events'](https://static.googleusercontent.com/media/research.google.com/en//pubs/archive/45857.pdf), IEEE ICASSP, 2017.\n",
+        "Qiuqiang Kong, Yong Xu, Wenwu Wang, Mark D. Plumbley,['Audio Set classification with attention model: A probabilistic perspective.'](https://arxiv.org/pdf/1711.00927.pdf) arXiv preprint arXiv:1711.00927 (2017).\n",
+        "Changsong Yu, Karim Said Barsim, Qiuqiang Kong, Bin Yang ,['Multi-level Attention Model for Weakly Supervised Audio Classification.'](https://arxiv.org/pdf/1803.02353.pdf) arXiv preprint arXiv:1803.02353 (2018).\n",
+        "S. Hershey, S. Chaudhuri, D. P. W. Ellis, J. F. Gemmeke, A. Jansen, R. C. Moore, M. Plakal, D. Platt, R. A. Saurous, B. Seybold et  al., ['CNN architectures for large-scale audio classification,'](https://arxiv.org/pdf/1609.09430.pdf) arXiv preprint arXiv:1609.09430, 2016.\n"
+	],
+    "keywords": [
+        "tensorflow", "docker", "deep learning", "trainable", "inference", "pre-trained", "api-v2", "audio", "general purpose"
+    ],
+    "license": "MIT",
+    "cite_url": "https://arxiv.org/pdf/1803.02353.pdf",
+    "dataset_url": "https://research.google.com/audioset",
+    "training_files_url": "https://cephrgw01.ifca.es:8080/swift/v1/audio-classification-tf/",
+    "date_creation": "2019-09-01",
+    "sources": {
+		"dockerfile_repo": "https://github.com/deephdc/DEEP-OC-audio-classification-tf",
+		"docker_registry_repo": "deephdc/deep-oc-audio-classification-tf",
+		"code": "http://github.com/deephdc/audio-classification-tf"
+	},
+    "continuous_integration": {
+        "build_status_badge": "https://jenkins.indigo-datacloud.eu/buildStatus/icon?job=Pipeline-as-code/DEEP-OC-org/DEEP-OC-audio-classification-tf/master",
+        "build_status_url": "https://jenkins.indigo-datacloud.eu/job/Pipeline-as-code/job/DEEP-OC-org/job/DEEP-OC-audio-classification-tf/job/master"
+    },
+    "tosca": [
+        {
+            "title": "Marathon default",
+            "url": "https://raw.githubusercontent.com/indigo-dc/tosca-templates/master/deep-oc/deep-oc-marathon-webdav.yml",
+            "inputs": [
+                "rclone_conf",
+                "rclone_url",
+                "rclone_vendor",
+                "rclone_user",
+                "rclone_pass"
+            ]
+        }
+    ]
+}
