@@ -1,5 +1,5 @@
 # Dockerfile may have two Arguments: tag, branch
-# tag - tag for the Base image, (e.g. 1.10.0-py3 for tensorflow)
+# tag - tag for the Base image, (e.g. 1.14.0-py3 for tensorflow)
 # branch - user repository branch to clone (default: main, other option: test)
 
 ARG tag=1.14.0-py3
@@ -48,7 +48,7 @@ WORKDIR /srv
 # Install rclone
 RUN wget https://downloads.rclone.org/rclone-current-linux-amd64.deb && \
     dpkg -i rclone-current-linux-amd64.deb && \
-    apt install -f && \
+    apt-get install -f && \
     mkdir /srv/.rclone/ && touch /srv/.rclone/rclone.conf && \
     rm rclone-current-linux-amd64.deb && \
     apt-get clean && \
@@ -67,11 +67,11 @@ ENV DISABLE_AUTHENTICATION_AND_ASSUME_AUTHENTICATED_USER yes
 ENV SHELL /bin/bash
 
 # Install audio packages
-RUN apt update && \
-    apt install -y ffmpeg libavcodec-extra
+RUN apt-get update && \
+    apt-get install -y ffmpeg libavcodec-extra
 
 # Install user app
-RUN git clone -b $branch https://github.com/ai4os-hub/ai4os-ai4os-audio-classification-tf && \
+RUN git clone -b $branch https://github.com/ai4os-hub/ai4os-audio-classification-tf && \
     cd  ai4os-audio-classification-tf && \
     pip install --no-cache-dir -e . && \
     rm -rf /root/.cache/pip/* && \
@@ -94,5 +94,3 @@ EXPOSE 5000 6006 8888
 
 # Launch deepaas
 CMD ["deepaas-run", "--listen-ip", "0.0.0.0", "--listen-port", "5000"]
-
-

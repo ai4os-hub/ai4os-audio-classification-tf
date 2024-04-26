@@ -1,7 +1,7 @@
 DEEP Open Catalogue: Audio classifier
 =====================================
 
-[![Build Status](https://jenkins.indigo-datacloud.eu:/buildStatus/icon?job=Pipeline-as-code/DEEP-OC-org/audio-classification-tf/master)](https://jenkins.services.ai4os.eu/job/AI4OS-hub/job/ai4os-audio-classification-tf/job/main/)
+[![Build Status](https://jenkins.services.ai4os.eu/buildStatus/icon?job=AI4OS-hub%2Fai4os-audio-classification-tf%2Fmain)](https://jenkins.services.ai4os.eu/job/AI4OS-hub/job/ai4os-audio-classification-tf/job/main/)
 
 **Author/Mantainer:** [Ignacio Heredia](https://github.com/IgnacioHeredia) (CSIC)
 
@@ -12,7 +12,7 @@ This is a plug-and-play tool to perform audio classification with Deep Learning.
 samples of audio as well as training their own classifier for a custom problem. The classifier is currently
 [pretrained](models/default) on the 527 high-level classes from the [AudioSet](https://research.google.com/audioset/) dataset.
 
-You can find more information about it in the [DEEP Marketplace](https://marketplace.deep-hybrid-datacloud.eu/modules/deep-oc-audio-classification-tf.html).
+You can find more information about it in the [AI4OS Marketplace](https://dashboard.cloud.ai4eosc.eu/marketplace).
 
 **Table of contents**
 1. [Installing this module](#installing-this-module)
