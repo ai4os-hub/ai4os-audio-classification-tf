@@ -12,7 +12,7 @@
         "The PREDICT method expects an audio file as input (or the url of a audio file) and will return a JSON with ",
         "the top 5 predictions. Most audio file formats are supported (see [FFMPEG](https://www.ffmpeg.org/) compatible formats).\n",
 
-        "<img class='fit', src='https://raw.githubusercontent.com/deephdc/DEEP-OC-audio-classification-tf/master/images/demo.png'/>\n",
+        "<img class='fit', src='https://raw.githubusercontent.com/ai4oshub/ai4os-audio-classification-tf/master/images/demo.png'/>\n",
 
         "**References**\n",
         "Jort F. Gemmeke, Daniel P. W. Ellis, Dylan Freedman, Aren Jansen, Wade Lawrence, R. Channing Moore, Manoj Plakal, Marvin Ritter,['Audio set: An ontology and human-labeled dataset for audio events'](https://static.googleusercontent.com/media/research.google.com/en//pubs/archive/45857.pdf), IEEE ICASSP, 2017.\n",
@@ -29,13 +29,13 @@
     "training_files_url": "https://cephrgw01.ifca.es:8080/swift/v1/audio-classification-tf/",
     "date_creation": "2019-09-01",
     "sources": {
-		"dockerfile_repo": "https://github.com/deephdc/DEEP-OC-audio-classification-tf",
-		"docker_registry_repo": "deephdc/deep-oc-audio-classification-tf",
+		"dockerfile_repo": "https://github.com/ai4os-hub/ai4os-audio-classification-tf",
+		"docker_registry_repo": "ai4oshub/ai4os-audio-classification-tf",
 		"code": "http://github.com/deephdc/audio-classification-tf"
 	},
     "continuous_integration": {
-        "build_status_badge": "https://jenkins.indigo-datacloud.eu/buildStatus/icon?job=Pipeline-as-code/DEEP-OC-org/DEEP-OC-audio-classification-tf/master",
-        "build_status_url": "https://jenkins.indigo-datacloud.eu/job/Pipeline-as-code/job/DEEP-OC-org/job/DEEP-OC-audio-classification-tf/job/master"
+        "build_status_badge": "https://jenkins.services.ai4os.eu/buildStatus/icon?job=AI4OS-hub/ai4os-audio-classification-tf/main",
+        "build_status_url": "https://jenkins.services.ai4os.eu/job/AI4OS-hub/job/ai4os-audio-classification-tf/job/main/"
     },
     "tosca": [
         {

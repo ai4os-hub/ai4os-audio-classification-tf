@@ -1,7 +1,7 @@
 DEEP Open Catalogue: Audio classifier
 =====================================
 
-[![Build Status](https://jenkins.indigo-datacloud.eu:/buildStatus/icon?job=Pipeline-as-code/DEEP-OC-org/audio-classification-tf/master)](https://jenkins.indigo-datacloud.eu/job/Pipeline-as-code/job/DEEP-OC-org/job/audio-classification-tf/job/master)
+[![Build Status](https://jenkins.indigo-datacloud.eu:/buildStatus/icon?job=Pipeline-as-code/DEEP-OC-org/audio-classification-tf/master)](https://jenkins.services.ai4os.eu/job/AI4OS-hub/job/ai4os-audio-classification-tf/job/main/)
 
 **Author/Mantainer:** [Ignacio Heredia](https://github.com/IgnacioHeredia) (CSIC)
 
@@ -43,7 +43,7 @@ You can find more information about it in the [DEEP Marketplace](https://marketp
 To start using this framework clone the repo and download the [default weights](https://api.cloud.ifca.es:8080/swift/v1/audio-classification-tf/default.tar.gz):
 
 ```bash
-git clone https://github.com/deephdc/audio-classification-tf
+git clone https://github.com/ai4os-hub/ai4os-audio-classification-tf
 cd audio-classification-tf
 pip install -e .
 curl -o ./models/default.tar.gz https://api.cloud.ifca.es:8080/swift/v1/audio-classification-tf/default.tar.gz
@@ -57,12 +57,12 @@ and open http://0.0.0.0:5000/ui and look for the methods belonging to the `audio
 
 ### Docker installation
 
-We have also prepared a ready-to-use [Docker container](https://github.com/deephdc/DEEP-OC-audio-classification-tf) to
+We have also prepared a ready-to-use [Docker container](https://github.com/ai4os-hub/ai4os-audio-classification-tf) to
 run this module. To run it:
 
 ```bash
 docker search deephdc
-docker run -ti -p 5000:5000 -p 6006:6006 -p 8888:8888 deephdc/deep-oc-audio-classification-tf
+docker run -ti -p 5000:5000 -p 6006:6006 -p 8888:8888 ai4oshub/ai4os-audio-classification-tf
 ```
 
 Now open http://0.0.0.0:5000/ui and look for the methods belonging to the `audioclas` module.
