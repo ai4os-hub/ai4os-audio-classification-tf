@@ -13,6 +13,7 @@ LABEL version='0.1'
 
 # What user branch to clone (!)
 ARG branch=main
+ARG tag
 
 # 2024: need to re-add GPG keys for Nvidia repos but only in the case of GPU images
 # Note for GPU build: see https://askubuntu.com/questions/1444943/nvidia-gpg-error-the-following-signatures-couldnt-be-verified-because-the-publi
@@ -53,7 +54,6 @@ RUN wget https://downloads.rclone.org/rclone-current-linux-amd64.deb && \
     rm rclone-current-linux-amd64.deb && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/* && \
-    rm -rf /root/.cache/pip/* && \
     rm -rf /tmp/*
 
 # Initialization scripts
@@ -66,9 +66,13 @@ ENV DISABLE_AUTHENTICATION_AND_ASSUME_AUTHENTICATED_USER yes
 
 ENV SHELL /bin/bash
 
-# Install audio packages
+# Install audio packages (libmagic1 seems missing in GPU tensorflow image)
 RUN apt-get update && \
-    apt-get install -y ffmpeg libavcodec-extra
+    apt-get install -y ffmpeg libavcodec-extra libmagic1 && \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/* && \
+    rm -rf /tmp/*
+
 
 # Install user app
 RUN git clone -b $branch https://github.com/ai4os-hub/ai4os-audio-classification-tf && \
