@@ -175,7 +175,7 @@ def catch_error(f):
         try:
             pred = f(*args, **kwargs)
             return {'status': 'OK',
-                    'predictions': pred}
+                    **pred}
         except Exception as e:
             return {'status': 'error',
                     'message': str(e)}
@@ -286,10 +286,19 @@ def predict_data(args):
         except Exception as e:
             print(e)
             tmp = {'title': fname,
-                   'error': str(e)}
+                   'status': 'error',
+                   'message': str(e)}
         finally:
             os.remove(fname)
         outputs.append(tmp)
+
+    # If more than one output put everything in a list
+    # Otherwise unpack for pretty gradio formatting
+    if len(outputs) > 1:
+        outputs = {'multi-image': outputs}
+    else:
+        outputs = outputs[0]
+        outputs.pop('title')
 
     return outputs
 
@@ -306,10 +315,10 @@ def predict_audio(fpath, merge=True):
     pred = {'title': os.path.basename(fpath),
             'labels': [class_names[p] for p in pred_lab],
             'probabilities': [float(p) for p in pred_prob],
-            'labels_info': [class_info[p] for p in pred_lab],
-            'links': {'Google Images': [image_link(class_names[p]) for p in pred_lab],
-                      'Wikipedia': [wikipedia_link(class_names[p]) for p in pred_lab]
-                      }
+            # 'labels_info': [class_info[p] for p in pred_lab],
+            # 'links': {'Google Images': [image_link(class_names[p]) for p in pred_lab],
+            #           'Wikipedia': [wikipedia_link(class_names[p]) for p in pred_lab]
+            #           }
             }
 
     return pred
@@ -468,5 +477,9 @@ def get_metadata(distribution_name='audioclas'):
 schema = {
     "status": fields.Str(),
     "message": fields.Str(),
-    "predictions": fields.Field()
+    "labels": fields.List(fields.Str()),
+    "probabilities": fields.List(fields.Float()),
+    "multi-image": fields.List(fields.Dict()),
+    # "labels_info": fields.List(fields.Str()),
+    # "links": fields.Dict(),
 }
