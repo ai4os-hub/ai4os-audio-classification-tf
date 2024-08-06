@@ -93,13 +93,11 @@ def train_fn(TIMESTAMP, CONF):
     if CONF["model"]["num_classes"] is None:
         CONF["model"]["num_classes"] = len(class_names)
 
-    assert CONF["model"]["num_classes"] >= np.amax(
-        y_train
-    ), "Your train.txt file has more categories than those defined in classes.txt"
+    if CONF["model"]["num_classes"] < np.amax(y_train):
+        raise Exception("Your train.txt file has more categories than those defined in classes.txt")
     if CONF["training"]["use_validation"]:
-        assert CONF["model"]["num_classes"] >= np.amax(
-            y_val
-        ), "Your val.txt file has more categories than those defined in classes.txt"
+        if CONF["model"]["num_classes"] < np.amax(y_val):
+            raise Exception("Your val.txt file has more categories than those defined in classes.txt")
 
     # Transform the training data to scipy-compatible 16-bit
     if not CONF["preprocessing"][

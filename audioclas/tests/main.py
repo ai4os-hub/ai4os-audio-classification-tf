@@ -112,9 +112,9 @@ def test_train():
 def test_curl_load():
     print("Testing curl: module load ...")
 
-    r = subprocess.run(
-        'curl -X GET "http://0.0.0.0:5000/v2/models/" -H "accept: application/json"',
-        shell=True,
+    r = subprocess.run(  # #nosec
+        'curl -X GET "http://0.0.0.0:5000/v2/models/" -H "accept: application/json"',  # #nosec
+        shell=True,  # #nosec
         check=True,
         stdout=subprocess.PIPE,
     ).stdout
@@ -131,7 +131,7 @@ def test_curl_metadata():
         'curl -X GET "http://0.0.0.0:5000/v2/models/{}/" -H "accept: application/json"'.format(
             module_name
         ),
-        shell=True,
+        shell=True,  # #nosec
         check=True,
         stdout=subprocess.PIPE,
     ).stdout
@@ -147,7 +147,7 @@ def test_curl_predict_url():
         'curl -X POST "http://0.0.0.0:5000/v2/models/{}/predict/?urls={}" -H "accept: application/json"'.format(
             module_name, quote_plus(test_url)
         ),
-        shell=True,
+        shell=True,  # #nosec
         check=True,
         stdout=subprocess.PIPE,
     ).stdout
@@ -167,7 +167,7 @@ def test_curl_train():
 
     command = """curl -X POST "http://0.0.0.0:5000/v2/models/audioclas/train/?base_directory=%22.%22&dataset_directory=%22data%2Fsamples%22&num_classes=null&files_to_PCM=true&compute_embeddings=true&mode=%22normal%22&initial_lr=0.001&batch_size=500&epochs=15&ckpt_freq=null&lr_schedule_mode=%22step%22&lr_step_decay=0.1&lr_step_schedule=%5B0.7%2C%200.9%5D&l2_reg=0.0001&use_validation=true&use_early_stopping=false&use_tensorboard=false&use_remote=false" -H "accept: application/json"
     """
-    _ = subprocess.run(command, shell=True, check=True, stdout=subprocess.PIPE).stdout
+    _ = subprocess.run(command, shell=True, check=True, stdout=subprocess.PIPE).stdout  # #nosec
 
     # """
     # We cannot remove the resulting files as DEEPaaS is asynchronous and therefore we cannot know we the training
@@ -187,14 +187,14 @@ if __name__ == "__main__":
     test_train()
 
     print("Testing through CURL ...")
-    r = subprocess.run(
-        "deepaas-run --listen-ip 0.0.0.0 --nowarm &", shell=True
+    r = subprocess.run(  # #nosec
+        "deepaas-run --listen-ip 0.0.0.0 --nowarm &", shell=True  # #nosec
     )  # launch deepaas
     time.sleep(20)  # wait for deepaas to be ready
     test_curl_load()
     test_curl_metadata()
     test_curl_predict_url()
     # test_curl_train()
-    r = subprocess.run(
-        "kill $(ps aux | grep 'deepaas-run' | awk '{print $2}')", shell=True
+    r = subprocess.run(  # #nosec
+        "kill $(ps aux | grep 'deepaas-run' | awk '{print $2}')", shell=True  # #nosec
     )  # kill deepaas

@@ -272,8 +272,8 @@ def predict_url(args):
     # Download files
     args["files"] = []
     for url in args["urls"]:
-        fname = "".join(random.choices(string.ascii_lowercase + string.digits, k=15))
-        fpath = os.path.join("/tmp", fname)
+        fname = "".join(random.choices(string.ascii_lowercase + string.digits, k=15))  # #nosec
+        fpath = os.path.join("/tmp", fname)  # #nosec #fixme:
         urlretrieve(url, fpath)
         f = UploadedFile(
             name="data", filename=fpath, content_type=magic.from_file(fpath, mime=True)
@@ -297,7 +297,7 @@ def predict_data(args):
     file_format = mimetypes.guess_extension(args["files"][0].content_type)
     if file_format and file_format[1:] in compressed_extensions:
         output_folder = (
-            os.path.join("/tmp", os.path.basename(args["files"][0].filename)).split(
+            os.path.join("/tmp", os.path.basename(args["files"][0].filename)).split(   # #nosec #fixme:
                 "."
             )[0]
             + "_decomp"

@@ -118,8 +118,10 @@ class data_sequence(Sequence):
         """
         Parameters are the same as in the data_generator function
         """
-        assert len(inputs) == len(targets)
-        assert len(inputs) >= batch_size
+        if len(inputs) != len(targets):
+            raise ValueError("Length of inputs and targets must be the same.")
+        if len(inputs) < batch_size:
+            raise ValueError("Length of inputs must be greater than or equal to batch_size.")
 
         self.inputs = inputs
         self.targets = targets
