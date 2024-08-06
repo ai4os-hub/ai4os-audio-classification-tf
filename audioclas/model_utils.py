@@ -32,16 +32,15 @@ def create_model(CONF, base_model):
     """
     # Remove last layer of the pre-trained model and add custom layers at the top to adapt it to our problem
     x = base_model.layers[-3].output
-    predictions = Dense(CONF['model']['num_classes'],
-                        activation='softmax')(x)
+    predictions = Dense(CONF["model"]["num_classes"], activation="softmax")(x)
 
     # Full model
     model = Model(inputs=base_model.input, outputs=predictions)
 
     # Add L2 reguralization for all the layers in the whole model
-    if CONF['training']['l2_reg']:
+    if CONF["training"]["l2_reg"]:
         for layer in model.layers:
-            layer.kernel_regularizer = regularizers.l2(CONF['training']['l2_reg'])
+            layer.kernel_regularizer = regularizers.l2(CONF["training"]["l2_reg"])
 
     return model, base_model
 
@@ -64,13 +63,17 @@ def save_to_pb(keras_model, export_path):
     builder = saved_model_builder.SavedModelBuilder(export_path)
 
     # Create prediction signature to be used by TensorFlow Serving Predict API
-    signature = predict_signature_def(inputs={"images": keras_model.input},
-                                      outputs={"scores": keras_model.output})
+    signature = predict_signature_def(
+        inputs={"images": keras_model.input}, outputs={"scores": keras_model.output}
+    )
 
     with K.get_session() as sess:
         # Save the meta graph and the variables
-        builder.add_meta_graph_and_variables(sess=sess, tags=[tag_constants.SERVING],
-                                             signature_def_map={"predict": signature})
+        builder.add_meta_graph_and_variables(
+            sess=sess,
+            tags=[tag_constants.SERVING],
+            signature_def_map={"predict": signature},
+        )
 
     builder.save()
 
@@ -94,15 +97,15 @@ def save_conf(conf):
     save_dir = paths.get_conf_dir()
 
     # Save dict as json file
-    with open(os.path.join(save_dir, 'conf.json'), 'w') as outfile:
+    with open(os.path.join(save_dir, "conf.json"), "w") as outfile:
         json.dump(conf, outfile, sort_keys=True, indent=4)
 
     # Save dict as txt file for easier redability
-    txt_file = open(os.path.join(save_dir, 'conf.txt'), 'w')
-    txt_file.write("{:<25}{:<30}{:<30} \n".format('group', 'key', 'value'))
-    txt_file.write('=' * 75 + '\n')
+    txt_file = open(os.path.join(save_dir, "conf.txt"), "w")
+    txt_file.write("{:<25}{:<30}{:<30} \n".format("group", "key", "value"))
+    txt_file.write("=" * 75 + "\n")
     for key, val in sorted(conf.items()):
         for g_key, g_val in sorted(val.items()):
             txt_file.write("{:<25}{:<30}{:<15} \n".format(key, g_key, str(g_val)))
-        txt_file.write('-' * 75 + '\n')
+        txt_file.write("-" * 75 + "\n")
     txt_file.close()

@@ -21,7 +21,7 @@ from tensorflow.keras.utils import to_categorical, Sequence
 from audioclas import paths
 
 
-def load_data_splits(splits_dir, dataset_dir, split_name='train'):
+def load_data_splits(splits_dir, dataset_dir, split_name="train"):
     """
     Load the data arrays from the [train/val/test].txt files.
     Lines of txt files have the following format:
@@ -41,18 +41,24 @@ def load_data_splits(splits_dir, dataset_dir, split_name='train'):
     y : Numpy array of int32
         Image label number
     """
-    if '{}.txt'.format(split_name) not in os.listdir(splits_dir):
-        raise ValueError("Invalid value for the split_name parameter: there is no `{}.txt` file in the `{}` "
-                         "directory.".format(split_name, splits_dir))
+    if "{}.txt".format(split_name) not in os.listdir(splits_dir):
+        raise ValueError(
+            "Invalid value for the split_name parameter: there is no `{}.txt` file in the `{}` "
+            "directory.".format(split_name, splits_dir)
+        )
 
     # Loading splits
     print("Loading {} data...".format(split_name))
-    split = np.genfromtxt(os.path.join(splits_dir, '{}.txt'.format(split_name)), dtype='str', delimiter=' ')
+    split = np.genfromtxt(
+        os.path.join(splits_dir, "{}.txt".format(split_name)),
+        dtype="str",
+        delimiter=" ",
+    )
     X = np.array([os.path.join(dataset_dir, i) for i in split[:, 0]])
 
     if len(split.shape) == 2:
         y = split[:, 1].astype(np.int32)
-    else: # maybe test file has not labels
+    else:  # maybe test file has not labels
         y = None
 
     return X, y
@@ -62,7 +68,7 @@ def mount_nextcloud(frompath, topath):
     """
     Mount a NextCloud folder in your local machine or viceversa.
     """
-    command = (['rclone', 'copy', frompath, topath])
+    command = ["rclone", "copy", frompath, topath]
     result = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     output, error = result.communicate()
     if error:
@@ -79,7 +85,9 @@ def load_class_names(splits_dir):
     Numpy array of shape (N) containing strs with class names
     """
     print("Loading class names...")
-    class_names = np.genfromtxt(os.path.join(splits_dir, 'classes.txt'), dtype='str', delimiter='/n')
+    class_names = np.genfromtxt(
+        os.path.join(splits_dir, "classes.txt"), dtype="str", delimiter="/n"
+    )
     return class_names
 
 
@@ -92,7 +100,9 @@ def load_class_info(splits_dir):
     Numpy array of shape (N) containing strs with class names
     """
     print("Loading class info...")
-    class_info = np.genfromtxt(os.path.join(splits_dir, 'info.txt'), dtype='str', delimiter='/n')
+    class_info = np.genfromtxt(
+        os.path.join(splits_dir, "info.txt"), dtype="str", delimiter="/n"
+    )
     return class_info
 
 
@@ -122,7 +132,7 @@ class data_sequence(Sequence):
         return int(np.ceil(len(self.inputs) / float(self.batch_size)))
 
     def __getitem__(self, idx):
-        batch_idxs = self.indexes[idx*self.batch_size: (idx+1)*self.batch_size]
+        batch_idxs = self.indexes[idx * self.batch_size : (idx + 1) * self.batch_size]
         batch_X = []
         for i in batch_idxs:
             sample = np.load(self.inputs[i])
@@ -144,9 +154,9 @@ def generate_embeddings(model_wrap, filepaths, labels, shuffle=True):
     new_paths, new_labels = [], []
     embed_dir, dataset_dir = paths.get_embeddings_dir(), paths.get_dataset_dir()
     for fpath, lab in tqdm(zip(filepaths, labels)):
-        with open(fpath, 'rb') as f:
+        with open(fpath, "rb") as f:
             tmp_path = os.path.relpath(fpath, start=dataset_dir)
-            tmp_path = tmp_path.split('.')[0]
+            tmp_path = tmp_path.split(".")[0]
             tmp_path = os.path.join(embed_dir, tmp_path)
 
             # Create save directory if needed
@@ -159,7 +169,7 @@ def generate_embeddings(model_wrap, filepaths, labels, shuffle=True):
 
             # Save each 10s embedding in a separate .npy file
             for i, sample in enumerate(embeddings_processed):
-                spath = tmp_path + '-{}.npy'.format(i)
+                spath = tmp_path + "-{}.npy".format(i)
                 np.save(spath, np.expand_dims(sample, axis=0))
                 new_paths.append(spath)
                 new_labels.append(lab)
@@ -183,7 +193,12 @@ def save_embeddings_txt(filepaths, labels, name):
         new_paths.append(tmp_path)
     new_paths = np.array(new_paths)
 
-    np.savetxt(os.path.join(paths.get_ts_splits_dir(), name), np.array([new_paths, labels]).T, delimiter=' ', fmt='%s')
+    np.savetxt(
+        os.path.join(paths.get_ts_splits_dir(), name),
+        np.array([new_paths, labels]).T,
+        delimiter=" ",
+        fmt="%s",
+    )
 
 
 def json_friendly(d):
@@ -212,13 +227,13 @@ def file_to_PCM_16bits(read_path, save_path=None, start=0, end=None):
         audiofile = AudioSegment.from_file(read_path)  # it infers the file format
         # file_format = read_path.split('.')[-1]
         # audiofile = AudioSegment.from_file(read_path, file_format)
-    except Exception as e:
+    except Exception:
         raise Exception("""Invalid audio file. Make sure you have FFMPEG installed.""")
 
     # Crop audio
-    audiofile = audiofile[start*1000:]
+    audiofile = audiofile[start * 1000 :]
     if end:
-        audiofile = audiofile[:end*1000]
+        audiofile = audiofile[: end * 1000]
 
     # Apply desired preprocessing
     audiofile = audiofile.set_sample_width(2)  # set to 16-bits
@@ -235,13 +250,13 @@ def bytes_to_PCM_16bits(bytes, start=0, end=None):
     """
     try:
         audiofile = AudioSegment.from_file(bytes)
-    except Exception as e:
+    except Exception:
         raise Exception("""Invalid audio file.""")
 
     # Crop audio
-    audiofile = audiofile[start*1000:]
+    audiofile = audiofile[start * 1000 :]
     if end:
-        audiofile = audiofile[:end*1000]
+        audiofile = audiofile[: end * 1000]
 
     # Apply desired preprocessing
     audiofile = audiofile.set_sample_width(2)  # set to 16-bits

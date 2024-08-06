@@ -25,7 +25,6 @@ from audioclas.embeddings import mel_features
 from audioclas.embeddings import vggish_params
 
 
-
 def waveform_to_examples(data, sample_rate):
     """Converts audio waveform into an array of examples for VGGish.
 
@@ -58,18 +57,20 @@ def waveform_to_examples(data, sample_rate):
         hop_length_secs=vggish_params.STFT_HOP_LENGTH_SECONDS,
         num_mel_bins=vggish_params.NUM_MEL_BINS,
         lower_edge_hertz=vggish_params.MEL_MIN_HZ,
-        upper_edge_hertz=vggish_params.MEL_MAX_HZ)
+        upper_edge_hertz=vggish_params.MEL_MAX_HZ,
+    )
 
     # Frame features into examples.
     features_sample_rate = 1.0 / vggish_params.STFT_HOP_LENGTH_SECONDS
-    example_window_length = int(round(
-        vggish_params.EXAMPLE_WINDOW_SECONDS * features_sample_rate))
-    example_hop_length = int(round(
-        vggish_params.EXAMPLE_HOP_SECONDS * features_sample_rate))
+    example_window_length = int(
+        round(vggish_params.EXAMPLE_WINDOW_SECONDS * features_sample_rate)
+    )
+    example_hop_length = int(
+        round(vggish_params.EXAMPLE_HOP_SECONDS * features_sample_rate)
+    )
     log_mel_examples = mel_features.frame(
-        log_mel,
-        window_length=example_window_length,
-        hop_length=example_hop_length)
+        log_mel, window_length=example_window_length, hop_length=example_hop_length
+    )
     return log_mel_examples
 
 
@@ -91,6 +92,6 @@ def wavfile_to_examples(wav_file):
         print("The specified WAV file type is not supported by scipy.io.wavfile.read()")
         sys.exit(1)
 
-    assert wav_data.dtype == np.int16, 'Bad sample type: %r' % wav_data.dtype
+    assert wav_data.dtype == np.int16, "Bad sample type: %r" % wav_data.dtype
     samples = wav_data / 32768.0  # Convert to [-1.0, +1.0]
     return waveform_to_examples(samples, sr)

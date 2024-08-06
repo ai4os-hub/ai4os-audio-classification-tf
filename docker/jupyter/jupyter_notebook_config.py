@@ -20,18 +20,18 @@
 import os
 from IPython.lib import passwd
 
-c = c # pylint:disable=undefined-variable
-c.NotebookApp.ip = '0.0.0.0'  # https://github.com/jupyter/notebook/issues/3946
-c.NotebookApp.port = int(os.getenv('jupyterPORT', 8888))
+c = c  # pylint:disable=undefined-variable
+c.NotebookApp.ip = "0.0.0.0"  # https://github.com/jupyter/notebook/issues/3946
+c.NotebookApp.port = int(os.getenv("jupyterPORT", 8888))
 c.NotebookApp.open_browser = False
 
 # sets a password if jupyterPASSWORD is set in the environment
-if 'jupyterPASSWORD' in os.environ:
-    password = os.environ['jupyterPASSWORD']
+if "jupyterPASSWORD" in os.environ:
+    password = os.environ["jupyterPASSWORD"]
     if password:
         c.NotebookApp.password = passwd(password)
     else:
         # no authentication!
-        c.NotebookApp.password = ''
-        c.NotebookApp.token = ''
-    del os.environ['jupyterPASSWORD']
+        c.NotebookApp.password = ""
+        c.NotebookApp.token = ""
+    del os.environ["jupyterPASSWORD"]

@@ -22,8 +22,19 @@ class customSGD(optimizers.SGD):
     Custom subclass of the SGD optmizer to implement lr_mult as in Caffe
     """
 
-    def __init__(self, lr=0.01, momentum=0., decay=0., nesterov=False, lr_mult=0.1, excluded_vars=[], **kwargs):
-        super().__init__(lr=lr, momentum=momentum, decay=decay, nesterov=nesterov, **kwargs)
+    def __init__(
+        self,
+        lr=0.01,
+        momentum=0.0,
+        decay=0.0,
+        nesterov=False,
+        lr_mult=0.1,
+        excluded_vars=[],
+        **kwargs
+    ):
+        super().__init__(
+            lr=lr, momentum=momentum, decay=decay, nesterov=nesterov, **kwargs
+        )
         with K.name_scope(self.__class__.__name__):
             self.lr_mult = lr_mult
             self.excluded_vars = excluded_vars
@@ -35,15 +46,18 @@ class customSGD(optimizers.SGD):
         lr = self.lr
         if self.initial_decay > 0:
             lr = lr * (  # pylint: disable=g-no-augmented-assignment
-                    1. / (1. + self.decay * math_ops.cast(self.iterations,
-                                                          K.dtype(self.decay))))
+                1.0
+                / (
+                    1.0
+                    + self.decay * math_ops.cast(self.iterations, K.dtype(self.decay))
+                )
+            )
         # momentum
         shapes = [K.int_shape(p) for p in params]
         moments = [K.zeros(shape) for shape in shapes]
         self.weights = [self.iterations] + moments
 
         for p, g, m in zip(params, grads, moments):
-
             ####################################################
             # Add a lr multiplier for vars outside excluded_vars
             if p.name in self.excluded_vars:
@@ -61,7 +75,7 @@ class customSGD(optimizers.SGD):
                 new_p = p + v
 
             # Apply constraints.
-            if getattr(p, 'constraint', None) is not None:
+            if getattr(p, "constraint", None) is not None:
                 new_p = p.constraint(new_p)
 
             self.updates.append(state_ops.assign(p, new_p))
@@ -69,12 +83,12 @@ class customSGD(optimizers.SGD):
 
     def get_config(self):
         config = {
-            'lr': float(K.get_value(self.lr)),
-            'momentum': float(K.get_value(self.momentum)),
-            'decay': float(K.get_value(self.decay)),
-            'nesterov': self.nesterov,
-            'excluded_vars': self.excluded_vars,
-            'lr_mult': self.lr_mult
+            "lr": float(K.get_value(self.lr)),
+            "momentum": float(K.get_value(self.momentum)),
+            "decay": float(K.get_value(self.decay)),
+            "nesterov": self.nesterov,
+            "excluded_vars": self.excluded_vars,
+            "lr_mult": self.lr_mult,
         }
         base_config = super().get_config()
         return dict(list(base_config.items()) + list(config.items()))
@@ -85,9 +99,27 @@ class customAdam(optimizers.Adam):
     Custom subclass of the Adam optmizer to implement lr_mult as in Caffe
     """
 
-    def __init__(self, lr=0.001, beta_1=0.9, beta_2=0.999, epsilon=None, decay=0., amsgrad=False,
-                 lr_mult=0.1, excluded_vars=[],**kwargs):
-        super().__init__(lr=lr, beta_1=beta_1, beta_2=beta_2, epsilon=epsilon, decay=decay, amsgrad=amsgrad, **kwargs)
+    def __init__(
+        self,
+        lr=0.001,
+        beta_1=0.9,
+        beta_2=0.999,
+        epsilon=None,
+        decay=0.0,
+        amsgrad=False,
+        lr_mult=0.1,
+        excluded_vars=[],
+        **kwargs
+    ):
+        super().__init__(
+            lr=lr,
+            beta_1=beta_1,
+            beta_2=beta_2,
+            epsilon=epsilon,
+            decay=decay,
+            amsgrad=amsgrad,
+            **kwargs
+        )
         with K.name_scope(self.__class__.__name__):
             self.lr_mult = lr_mult
             self.excluded_vars = excluded_vars
@@ -99,13 +131,18 @@ class customAdam(optimizers.Adam):
         lr = self.lr
         if self.initial_decay > 0:
             lr = lr * (  # pylint: disable=g-no-augmented-assignment
-              1. / (1. + self.decay * math_ops.cast(self.iterations,
-                                                    K.dtype(self.decay))))
+                1.0
+                / (
+                    1.0
+                    + self.decay * math_ops.cast(self.iterations, K.dtype(self.decay))
+                )
+            )
 
         t = math_ops.cast(self.iterations, K.floatx()) + 1
         lr_t = lr * (
-            K.sqrt(1. - math_ops.pow(self.beta_2, t)) /
-            (1. - math_ops.pow(self.beta_1, t)))
+            K.sqrt(1.0 - math_ops.pow(self.beta_2, t))
+            / (1.0 - math_ops.pow(self.beta_1, t))
+        )
 
         ms = [K.zeros(K.int_shape(p), dtype=K.dtype(p)) for p in params]
         vs = [K.zeros(K.int_shape(p), dtype=K.dtype(p)) for p in params]
@@ -116,7 +153,6 @@ class customAdam(optimizers.Adam):
         self.weights = [self.iterations] + ms + vs + vhats
 
         for p, g, m, v, vhat in zip(params, grads, ms, vs, vhats):
-
             ####################################################
             # Add a lr multiplier for vars outside excluded_vars
             if p.name in self.excluded_vars:
@@ -125,8 +161,8 @@ class customAdam(optimizers.Adam):
                 multiplied_lr_t = lr_t * self.lr_mult
             ###################################################
 
-            m_t = (self.beta_1 * m) + (1. - self.beta_1) * g
-            v_t = (self.beta_2 * v) + (1. - self.beta_2) * math_ops.square(g)
+            m_t = (self.beta_1 * m) + (1.0 - self.beta_1) * g
+            v_t = (self.beta_2 * v) + (1.0 - self.beta_2) * math_ops.square(g)
             if self.amsgrad:
                 vhat_t = math_ops.maximum(vhat, v_t)
                 p_t = p - multiplied_lr_t * m_t / (K.sqrt(vhat_t) + self.epsilon)
@@ -139,7 +175,7 @@ class customAdam(optimizers.Adam):
             new_p = p_t
 
             # Apply constraints.
-            if getattr(p, 'constraint', None) is not None:
+            if getattr(p, "constraint", None) is not None:
                 new_p = p.constraint(new_p)
 
             self.updates.append(state_ops.assign(p, new_p))
@@ -147,14 +183,14 @@ class customAdam(optimizers.Adam):
 
     def get_config(self):
         config = {
-            'lr': float(K.get_value(self.lr)),
-            'beta_1': float(K.get_value(self.beta_1)),
-            'beta_2': float(K.get_value(self.beta_2)),
-            'decay': float(K.get_value(self.decay)),
-            'epsilon': self.epsilon,
-            'amsgrad': self.amsgrad,
-            'excluded_vars': self.excluded_vars,
-            'lr_mult': self.lr_mult
+            "lr": float(K.get_value(self.lr)),
+            "beta_1": float(K.get_value(self.beta_1)),
+            "beta_2": float(K.get_value(self.beta_2)),
+            "decay": float(K.get_value(self.decay)),
+            "epsilon": self.epsilon,
+            "amsgrad": self.amsgrad,
+            "excluded_vars": self.excluded_vars,
+            "lr_mult": self.lr_mult,
         }
         base_config = super().get_config()
         return dict(list(base_config.items()) + list(config.items()))
@@ -188,21 +224,34 @@ class customAdamW(optimizers.Optimizer):
     ################
     """
 
-    def __init__(self, lr=0.001, beta_1=0.9, beta_2=0.999,
-                 epsilon=None, decay=0., weight_decay=0.025,
-                 batch_size=1, samples_per_epoch=1, epochs=1,
-                 lr_mult=0.1, excluded_vars=[], **kwargs):
+    def __init__(
+        self,
+        lr=0.001,
+        beta_1=0.9,
+        beta_2=0.999,
+        epsilon=None,
+        decay=0.0,
+        weight_decay=0.025,
+        batch_size=1,
+        samples_per_epoch=1,
+        epochs=1,
+        lr_mult=0.1,
+        excluded_vars=[],
+        **kwargs
+    ):
         super().__init__(**kwargs)
         with K.name_scope(self.__class__.__name__):
-            self.iterations = K.variable(0, dtype='int64', name='iterations')
-            self.lr = K.variable(lr, name='lr')
-            self.beta_1 = K.variable(beta_1, name='beta_1')
-            self.beta_2 = K.variable(beta_2, name='beta_2')
-            self.decay = K.variable(decay, name='decay')
-            self.weight_decay = K.variable(weight_decay, name='weight_decay')
-            self.batch_size = K.variable(batch_size, name='batch_size')
-            self.samples_per_epoch = K.variable(samples_per_epoch, name='samples_per_epoch')
-            self.epochs = K.variable(epochs, name='epochs')
+            self.iterations = K.variable(0, dtype="int64", name="iterations")
+            self.lr = K.variable(lr, name="lr")
+            self.beta_1 = K.variable(beta_1, name="beta_1")
+            self.beta_2 = K.variable(beta_2, name="beta_2")
+            self.decay = K.variable(decay, name="decay")
+            self.weight_decay = K.variable(weight_decay, name="weight_decay")
+            self.batch_size = K.variable(batch_size, name="batch_size")
+            self.samples_per_epoch = K.variable(
+                samples_per_epoch, name="samples_per_epoch"
+            )
+            self.epochs = K.variable(epochs, name="epochs")
             self.lr_mult = lr_mult
             self.excluded_vars = excluded_vars
         if epsilon is None:
@@ -216,21 +265,22 @@ class customAdamW(optimizers.Optimizer):
 
         lr = self.lr
         if self.initial_decay > 0:
-            lr = lr * (1. / (1. + self.decay * K.cast(self.iterations,
-                                                      K.dtype(self.decay))))
+            lr = lr * (
+                1.0 / (1.0 + self.decay * K.cast(self.iterations, K.dtype(self.decay)))
+            )
 
         t = K.cast(self.iterations, K.floatx()) + 1
-        '''Bias corrections according to the Adam paper
-        '''
-        lr_t = lr * (K.sqrt(1. - K.pow(self.beta_2, t)) /
-                     (1. - K.pow(self.beta_1, t)))
+        """Bias corrections according to the Adam paper
+        """
+        lr_t = lr * (
+            K.sqrt(1.0 - K.pow(self.beta_2, t)) / (1.0 - K.pow(self.beta_1, t))
+        )
 
         ms = [K.zeros(K.int_shape(p), dtype=K.dtype(p)) for p in params]
         vs = [K.zeros(K.int_shape(p), dtype=K.dtype(p)) for p in params]
         self.weights = [self.iterations] + ms + vs
 
         for p, g, m, v in zip(params, grads, ms, vs):
-
             ####################################################
             # Add a lr multiplier for vars outside excluded_vars
             if p.name in self.excluded_vars:
@@ -239,19 +289,20 @@ class customAdamW(optimizers.Optimizer):
                 multiplied_lr_t = lr_t * self.lr_mult
             ###################################################
 
-            m_t = (self.beta_1 * m) + (1. - self.beta_1) * g
-            v_t = (self.beta_2 * v) + (1. - self.beta_2) * K.square(g)
+            m_t = (self.beta_1 * m) + (1.0 - self.beta_1) * g
+            v_t = (self.beta_2 * v) + (1.0 - self.beta_2) * K.square(g)
 
-            '''Schedule multiplier eta_t = 1 for simple AdamW
-            According to the AdamW paper, eta_t can be fixed, decay, or 
-            also be used for warm restarts (AdamWR to come). 
-            '''
-            eta_t = 1.
+            """Schedule multiplier eta_t = 1 for simple AdamW
+            According to the AdamW paper, eta_t can be fixed, decay, or
+            also be used for warm restarts (AdamWR to come).
+            """
+            eta_t = 1.0
             p_t = p - eta_t * (multiplied_lr_t * m_t / (K.sqrt(v_t) + self.epsilon))
             if self.weight_decay != 0:
-                '''Normalized weight decay according to the AdamW paper
-                '''
-                w_d = self.weight_decay * K.sqrt(self.batch_size / (self.samples_per_epoch * self.epochs))
+                """Normalized weight decay according to the AdamW paper"""
+                w_d = self.weight_decay * K.sqrt(
+                    self.batch_size / (self.samples_per_epoch * self.epochs)
+                )
                 p_t = p_t - eta_t * (w_d * p)
 
             self.updates.append(K.update(m, m_t))
@@ -259,24 +310,25 @@ class customAdamW(optimizers.Optimizer):
             new_p = p_t
 
             # Apply constraints.
-            if getattr(p, 'constraint', None) is not None:
+            if getattr(p, "constraint", None) is not None:
                 new_p = p.constraint(new_p)
 
             self.updates.append(K.update(p, new_p))
         return self.updates
 
     def get_config(self):
-        config = {'lr': float(K.get_value(self.lr)),
-                  'beta_1': float(K.get_value(self.beta_1)),
-                  'beta_2': float(K.get_value(self.beta_2)),
-                  'decay': float(K.get_value(self.decay)),
-                  'weight_decay': float(K.get_value(self.weight_decay)),
-                  'batch_size': int(K.get_value(self.batch_size)),
-                  'samples_per_epoch': int(K.get_value(self.samples_per_epoch)),
-                  'epochs': int(K.get_value(self.epochs)),
-                  'epsilon': self.epsilon,
-                  'excluded_vars': self.excluded_vars,
-                  'lr_mult': self.lr_mult
-                  }
+        config = {
+            "lr": float(K.get_value(self.lr)),
+            "beta_1": float(K.get_value(self.beta_1)),
+            "beta_2": float(K.get_value(self.beta_2)),
+            "decay": float(K.get_value(self.decay)),
+            "weight_decay": float(K.get_value(self.weight_decay)),
+            "batch_size": int(K.get_value(self.batch_size)),
+            "samples_per_epoch": int(K.get_value(self.samples_per_epoch)),
+            "epochs": int(K.get_value(self.epochs)),
+            "epsilon": self.epsilon,
+            "excluded_vars": self.excluded_vars,
+            "lr_mult": self.lr_mult,
+        }
         base_config = super().get_config()
         return dict(list(base_config.items()) + list(config.items()))

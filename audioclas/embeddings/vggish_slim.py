@@ -64,40 +64,44 @@ def define_vggish_slim(training=False):
     # - All activations are ReLU.
     # - All convolutions are 3x3 with stride 1 and SAME padding.
     # - All max-pools are 2x2 with stride 2 and SAME padding.
-    with slim.arg_scope([slim.conv2d, slim.fully_connected],
-                        weights_initializer=tf.truncated_normal_initializer(
-                            stddev=params.INIT_STDDEV),
-                        biases_initializer=tf.zeros_initializer(),
-                        activation_fn=tf.nn.relu,
-                        trainable=training), \
-         slim.arg_scope([slim.conv2d],  # noqa
-                        kernel_size=[3, 3], stride=1, padding='SAME'), \
-         slim.arg_scope([slim.max_pool2d],
-                        kernel_size=[2, 2], stride=2, padding='SAME'), \
-         tf.variable_scope('vggish'):
+    with slim.arg_scope(
+        [slim.conv2d, slim.fully_connected],
+        weights_initializer=tf.truncated_normal_initializer(stddev=params.INIT_STDDEV),
+        biases_initializer=tf.zeros_initializer(),
+        activation_fn=tf.nn.relu,
+        trainable=training,
+    ), slim.arg_scope(
+        [slim.conv2d], kernel_size=[3, 3], stride=1, padding="SAME"  # noqa
+    ), slim.arg_scope(
+        [slim.max_pool2d], kernel_size=[2, 2], stride=2, padding="SAME"
+    ), tf.variable_scope(
+        "vggish"
+    ):
         # Input: a batch of 2-D log-mel-spectrogram patches.
         features = tf.placeholder(
-            tf.float32, shape=(None, params.NUM_FRAMES, params.NUM_BANDS),
-            name='input_features')
+            tf.float32,
+            shape=(None, params.NUM_FRAMES, params.NUM_BANDS),
+            name="input_features",
+        )
         # Reshape to 4-D so that we can convolve a batch with conv2d().
         net = tf.reshape(features, [-1, params.NUM_FRAMES, params.NUM_BANDS, 1])
 
         # The VGG stack of alternating convolutions and max-pools.
-        net = slim.conv2d(net, 64, scope='conv1')
-        net = slim.max_pool2d(net, scope='pool1')
-        net = slim.conv2d(net, 128, scope='conv2')
-        net = slim.max_pool2d(net, scope='pool2')
-        net = slim.repeat(net, 2, slim.conv2d, 256, scope='conv3')
-        net = slim.max_pool2d(net, scope='pool3')
-        net = slim.repeat(net, 2, slim.conv2d, 512, scope='conv4')
-        net = slim.max_pool2d(net, scope='pool4')
+        net = slim.conv2d(net, 64, scope="conv1")
+        net = slim.max_pool2d(net, scope="pool1")
+        net = slim.conv2d(net, 128, scope="conv2")
+        net = slim.max_pool2d(net, scope="pool2")
+        net = slim.repeat(net, 2, slim.conv2d, 256, scope="conv3")
+        net = slim.max_pool2d(net, scope="pool3")
+        net = slim.repeat(net, 2, slim.conv2d, 512, scope="conv4")
+        net = slim.max_pool2d(net, scope="pool4")
 
         # Flatten before entering fully-connected layers
         net = slim.flatten(net)
-        net = slim.repeat(net, 2, slim.fully_connected, 4096, scope='fc1')
+        net = slim.repeat(net, 2, slim.fully_connected, 4096, scope="fc1")
         # The embedding layer.
-        net = slim.fully_connected(net, params.EMBEDDING_SIZE, scope='fc2')
-        return tf.identity(net, name='embedding')
+        net = slim.fully_connected(net, params.EMBEDDING_SIZE, scope="fc2")
+        return tf.identity(net, name="embedding")
 
 
 def load_vggish_slim_checkpoint(session, checkpoint_path):
@@ -125,6 +129,5 @@ def load_vggish_slim_checkpoint(session, checkpoint_path):
     vggish_vars = [v for v in tf.global_variables() if v.name in vggish_var_names]
 
     # Use a Saver to restore just the variables selected above.
-    saver = tf.train.Saver(vggish_vars, name='vggish_load_pretrained',
-                           write_version=1)
+    saver = tf.train.Saver(vggish_vars, name="vggish_load_pretrained", write_version=1)
     saver.restore(session, checkpoint_path)

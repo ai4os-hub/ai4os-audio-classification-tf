@@ -58,7 +58,23 @@ loaded_ts, loaded_ckpt = None, None
 model_wrapper, conf, class_names, class_info = None, None, None, None
 
 # Additional parameters
-compressed_extensions = ['zip', 'tar', 'bz2', 'tb2', 'tbz', 'tbz2', 'gz', 'tgz', 'lz', 'lzma', 'tlz', 'xz', 'txz', 'Z', 'tZ']
+compressed_extensions = [
+    "zip",
+    "tar",
+    "bz2",
+    "tb2",
+    "tbz",
+    "tbz2",
+    "gz",
+    "tgz",
+    "lz",
+    "lzma",
+    "tlz",
+    "xz",
+    "txz",
+    "Z",
+    "tZ",
+]
 
 
 def load_inference_model(timestamp=None, ckpt_name=None):
@@ -78,32 +94,42 @@ def load_inference_model(timestamp=None, ckpt_name=None):
     # Set the timestamp
     timestamp_list = next(os.walk(paths.get_models_dir()))[1]
     timestamp_list = sorted(timestamp_list)
-    timestamp_list.remove('common')  # common files do not count as full model
+    timestamp_list.remove("common")  # common files do not count as full model
     if not timestamp_list:
         raise Exception(
             "You have no models in your `./models` folder to be used for inference. "
-            "Therefore the API can only be used for training.")
+            "Therefore the API can only be used for training."
+        )
     elif timestamp is None:
         timestamp = timestamp_list[-1]
     elif timestamp not in timestamp_list:
         raise ValueError(
-            "Invalid timestamp name: {}. Available timestamp names are: {}".format(timestamp, timestamp_list))
+            "Invalid timestamp name: {}. Available timestamp names are: {}".format(
+                timestamp, timestamp_list
+            )
+        )
     paths.timestamp = timestamp
-    print('Using TIMESTAMP={}'.format(timestamp))
+    print("Using TIMESTAMP={}".format(timestamp))
 
     # Set the checkpoint model to use to make the prediction
     ckpt_list = os.listdir(paths.get_checkpoints_dir())
-    ckpt_list = sorted([name for name in ckpt_list if name.endswith('.h5')])
+    ckpt_list = sorted([name for name in ckpt_list if name.endswith(".h5")])
     if not ckpt_list:
         raise Exception(
-            "You have no checkpoints in your `./models/{}/ckpts` folder to be used for inference. ".format(timestamp) +
-            "Therefore the API can only be used for training.")
+            "You have no checkpoints in your `./models/{}/ckpts` folder to be used for inference. ".format(
+                timestamp
+            )
+            + "Therefore the API can only be used for training."
+        )
     elif ckpt_name is None:
         ckpt_name = ckpt_list[-1]
     elif ckpt_name not in ckpt_list:
         raise ValueError(
-            "Invalid checkpoint name: {}. Available checkpoint names are: {}".format(ckpt_name, ckpt_list))
-    print('Using CKPT_NAME={}'.format(ckpt_name))
+            "Invalid checkpoint name: {}. Available checkpoint names are: {}".format(
+                ckpt_name, ckpt_list
+            )
+        )
+    print("Using CKPT_NAME={}".format(ckpt_name))
 
     # Clear the previous loaded model
     K.clear_session()
@@ -112,24 +138,28 @@ def load_inference_model(timestamp=None, ckpt_name=None):
     splits_dir = paths.get_ts_splits_dir()
     class_names = load_class_names(splits_dir=splits_dir)
     class_info = None
-    if 'info.txt' in os.listdir(splits_dir):
+    if "info.txt" in os.listdir(splits_dir):
         class_info = load_class_info(splits_dir=splits_dir)
         if len(class_info) != len(class_names):
-            warnings.warn("""The 'classes.txt' file has a different length than the 'info.txt' file.
+            warnings.warn(
+                """The 'classes.txt' file has a different length than the 'info.txt' file.
             If a class has no information whatsoever you should leave that classes row empty or put a '-' symbol.
-            The API will run with no info until this is solved.""")
+            The API will run with no info until this is solved."""
+            )
             class_info = None
     if class_info is None:
-        class_info = ['' for _ in range(len(class_names))]
+        class_info = ["" for _ in range(len(class_names))]
 
     # Load training configuration
-    conf_path = os.path.join(paths.get_conf_dir(), 'conf.json')
+    conf_path = os.path.join(paths.get_conf_dir(), "conf.json")
     with open(conf_path) as f:
         conf = json.load(f)
         update_with_saved_conf(conf)
 
     # Load the model
-    model_wrapper = ModelWrapper(classifier_model=os.path.join(paths.get_checkpoints_dir(), ckpt_name))
+    model_wrapper = ModelWrapper(
+        classifier_model=os.path.join(paths.get_checkpoints_dir(), ckpt_name)
+    )
 
     # Set the model as loaded
     loaded_ts = timestamp
@@ -146,7 +176,7 @@ def update_with_saved_conf(saved_conf):
         if group in saved_conf.keys():
             for g_key, g_val in sorted(val.items()):
                 if g_key in saved_conf[group].keys():
-                    g_val['value'] = saved_conf[group][g_key]
+                    g_val["value"] = saved_conf[group][g_key]
 
     # Check and save the configuration
     config.check_conf(conf=CONF)
@@ -162,7 +192,7 @@ def update_with_query_conf(user_args):
     for group, val in sorted(CONF.items()):
         for g_key, g_val in sorted(val.items()):
             if g_key in user_args:
-                g_val['value'] = json.loads(user_args[g_key])
+                g_val["value"] = json.loads(user_args[g_key])
 
     # Check and save the configuration
     config.check_conf(conf=CONF)
@@ -174,28 +204,26 @@ def catch_error(f):
     def wrap(*args, **kwargs):
         try:
             pred = f(*args, **kwargs)
-            return {'status': 'OK',
-                    **pred}
+            return {"status": "OK", **pred}
         except Exception as e:
-            return {'status': 'error',
-                    'message': str(e)}
+            return {"status": "error", "message": str(e)}
+
     return wrap
 
 
 def catch_url_error(url_list):
-
     # Error catch: Empty query
     if not url_list:
-        raise ValueError('Empty query')
+        raise ValueError("Empty query")
 
     for i in url_list:
-
         # Error catch: Inexistent url
         try:
-            url_type = requests.head(i).headers.get('content-type')
+            _ = requests.head(i).headers.get("content-type")
         except Exception:
-            raise ValueError("Failed url connection: "
-                             "Check you wrote the url address correctly.")
+            raise ValueError(
+                "Failed url connection: " "Check you wrote the url address correctly."
+            )
 
         # # Error catch: Wrong formatted urls
         # if url_type.split('/')[0] != 'audio':
@@ -209,7 +237,7 @@ def catch_localfile_error(file_list):
 
     # Error catch: Empty query
     if not file_list:
-        raise ValueError('Empty query')
+        raise ValueError("Empty query")
 
 
 def warm():
@@ -221,16 +249,14 @@ def warm():
 
 @catch_error
 def predict(**args):
-
-    if (not any([args['urls'], args['files']]) or
-            all([args['urls'], args['files']])):
+    if not any([args["urls"], args["files"]]) or all([args["urls"], args["files"]]):
         raise Exception("You must provide either 'url' or 'data' in the payload")
 
-    if args['files']:
-        args['files'] = [args['files']]  # patch until list is available
+    if args["files"]:
+        args["files"] = [args["files"]]  # patch until list is available
         return predict_data(args)
-    elif args['urls']:
-        args['urls'] = [args['urls']]  # patch until list is available
+    elif args["urls"]:
+        args["urls"] = [args["urls"]]  # patch until list is available
         return predict_url(args)
 
 
@@ -238,16 +264,18 @@ def predict_url(args):
     """
     Function to predict an url
     """
-    catch_url_error(args['urls'])
+    catch_url_error(args["urls"])
 
     # Download files
-    args['files'] = []
-    for url in args['urls']:
-        fname = ''.join(random.choices(string.ascii_lowercase + string.digits, k=15))
-        fpath = os.path.join('/tmp', fname)
+    args["files"] = []
+    for url in args["urls"]:
+        fname = "".join(random.choices(string.ascii_lowercase + string.digits, k=15))
+        fpath = os.path.join("/tmp", fname)
         urlretrieve(url, fpath)
-        f = UploadedFile(name='data', filename=fpath, content_type=magic.from_file(fpath, mime=True))
-        args['files'].append(f)
+        f = UploadedFile(
+            name="data", filename=fpath, content_type=magic.from_file(fpath, mime=True)
+        )
+        args["files"].append(f)
 
     return predict_data(args)
 
@@ -260,23 +288,35 @@ def predict_data(args):
     update_with_query_conf(args)
     conf = config.conf_dict
 
-    catch_localfile_error(args['files'])
+    catch_localfile_error(args["files"])
 
     # Unpack if needed
-    file_format = mimetypes.guess_extension(args['files'][0].content_type)
+    file_format = mimetypes.guess_extension(args["files"][0].content_type)
     if file_format and file_format[1:] in compressed_extensions:
-        output_folder = os.path.join('/tmp', os.path.basename(args['files'][0].filename)).split('.')[0] + '_decomp'
-        misc.open_compressed(byte_stream=open(args['files'][0].filename, 'rb'),
-                             file_format=file_format[1:],
-                             output_folder=output_folder)
+        output_folder = (
+            os.path.join("/tmp", os.path.basename(args["files"][0].filename)).split(
+                "."
+            )[0]
+            + "_decomp"
+        )
+        misc.open_compressed(
+            byte_stream=open(args["files"][0].filename, "rb"),
+            file_format=file_format[1:],
+            output_folder=output_folder,
+        )
         filenames = misc.find_audiofiles(folder_path=output_folder)
     else:
-        filenames = [f.filename for f in args['files']]
+        filenames = [f.filename for f in args["files"]]
 
     # Load model if needed
-    if loaded_ts != conf['testing']['timestamp'] or loaded_ckpt != conf['testing']['ckpt_name']:
-        load_inference_model(timestamp=conf['testing']['timestamp'],
-                             ckpt_name=conf['testing']['ckpt_name'])
+    if (
+        loaded_ts != conf["testing"]["timestamp"]
+        or loaded_ckpt != conf["testing"]["ckpt_name"]
+    ):
+        load_inference_model(
+            timestamp=conf["testing"]["timestamp"],
+            ckpt_name=conf["testing"]["ckpt_name"],
+        )
 
     # Getting the predictions
     outputs = []
@@ -285,9 +325,7 @@ def predict_data(args):
             tmp = predict_audio(fpath=fname)
         except Exception as e:
             print(e)
-            tmp = {'title': fname,
-                   'status': 'error',
-                   'message': str(e)}
+            tmp = {"title": fname, "status": "error", "message": str(e)}
         finally:
             os.remove(fname)
         outputs.append(tmp)
@@ -295,16 +333,15 @@ def predict_data(args):
     # If more than one output put everything in a list
     # Otherwise unpack for pretty gradio formatting
     if len(outputs) > 1:
-        outputs = {'multi-image': outputs}
+        outputs = {"multi-image": outputs}
     else:
         outputs = outputs[0]
-        outputs.pop('title')
+        outputs.pop("title")
 
     return outputs
 
 
 def predict_audio(fpath, merge=True):
-
     data_bytes = bytes_to_PCM_16bits(fpath)
     pred_lab, pred_prob = model_wrapper.predict(wav_file=data_bytes, merge=merge)
 
@@ -312,14 +349,15 @@ def predict_audio(fpath, merge=True):
         pred_lab, pred_prob = np.squeeze(pred_lab), np.squeeze(pred_prob)
 
     # Formatting the predictions to the required API format
-    pred = {'title': os.path.basename(fpath),
-            'labels': [class_names[p] for p in pred_lab],
-            'probabilities': [float(p) for p in pred_prob],
-            # 'labels_info': [class_info[p] for p in pred_lab],
-            # 'links': {'Google Images': [image_link(class_names[p]) for p in pred_lab],
-            #           'Wikipedia': [wikipedia_link(class_names[p]) for p in pred_lab]
-            #           }
-            }
+    pred = {
+        "title": os.path.basename(fpath),
+        "labels": [class_names[p] for p in pred_lab],
+        "probabilities": [float(p) for p in pred_prob],
+        # 'labels_info': [class_info[p] for p in pred_lab],
+        # 'links': {'Google Images': [image_link(class_names[p]) for p in pred_lab],
+        #           'Wikipedia': [wikipedia_link(class_names[p]) for p in pred_lab]
+        #           }
+    }
 
     return pred
 
@@ -328,8 +366,8 @@ def image_link(pred_lab):
     """
     Return link to Google images
     """
-    base_url = 'https://www.google.es/search?'
-    params = {'tbm':'isch','q':pred_lab}
+    base_url = "https://www.google.es/search?"
+    params = {"tbm": "isch", "q": pred_lab}
     link = base_url + requests.compat.urlencode(params)
     return link
 
@@ -338,8 +376,8 @@ def wikipedia_link(pred_lab):
     """
     Return link to wikipedia webpage
     """
-    base_url = 'https://en.wikipedia.org/wiki/'
-    link = base_url + pred_lab.replace(' ', '_')
+    base_url = "https://en.wikipedia.org/wiki/"
+    link = base_url + pred_lab.replace(" ", "_")
     return link
 
 
@@ -349,7 +387,7 @@ def train(**args):
     """
     update_with_query_conf(user_args=args)
     CONF = config.conf_dict
-    timestamp = datetime.now().strftime('%Y-%m-%d_%H%M%S')
+    timestamp = datetime.now().strftime("%Y-%m-%d_%H%M%S")
     config.print_conf_table(CONF)
     K.clear_session()  # remove the model loaded for prediction
     train_fn(TIMESTAMP=timestamp, CONF=CONF)
@@ -360,7 +398,7 @@ def train(**args):
     # except Exception as e:
     #     print(e)
 
-    return {'modelname': timestamp}
+    return {"modelname": timestamp}
 
 
 def populate_parser(parser, default_conf):
@@ -372,25 +410,28 @@ def populate_parser(parser, default_conf):
             gg_keys = g_val.keys()
 
             # Load optional keys
-            help = g_val['help'] if ('help' in gg_keys) else ''
-            type = getattr(builtins, g_val['type']) if ('type' in gg_keys) else None
-            choices = g_val['choices'] if ('choices' in gg_keys) else None
+            help = g_val["help"] if ("help" in gg_keys) else ""
+            type = getattr(builtins, g_val["type"]) if ("type" in gg_keys) else None
+            choices = g_val["choices"] if ("choices" in gg_keys) else None
 
             # Additional info in help string
-            help += '\n' + "<font color='#C5576B'> Group name: **{}**".format(str(group))
+            help += "\n" + "<font color='#C5576B'> Group name: **{}**".format(
+                str(group)
+            )
             if choices:
-                help += '\n' + "Choices: {}".format(str(choices))
+                help += "\n" + "Choices: {}".format(str(choices))
             if type:
-                help += '\n' + "Type: {}".format(g_val['type'])
+                help += "\n" + "Type: {}".format(g_val["type"])
             help += "</font>"
 
             # Create arg dict
-            opt_args = {'missing': json.dumps(g_val['value']),
-                        'description': help,
-                        'required': False,
-                        }
+            opt_args = {
+                "missing": json.dumps(g_val["value"]),
+                "description": help,
+                "required": False,
+            }
             if choices:
-                opt_args['enum'] = [json.dumps(i) for i in choices]
+                opt_args["enum"] = [json.dumps(i) for i in choices]
 
             parser[g_key] = fields.Str(**opt_args)
 
@@ -398,14 +439,17 @@ def populate_parser(parser, default_conf):
 
 
 def get_train_args():
-
     parser = OrderedDict()
     default_conf = config.CONF
-    default_conf = OrderedDict([('general', default_conf['general']),
-                                ('model', default_conf['model']),
-                                ('preprocessing', default_conf['preprocessing']),
-                                ('training', default_conf['training']),
-                                ('monitor', default_conf['monitor'])])
+    default_conf = OrderedDict(
+        [
+            ("general", default_conf["general"]),
+            ("model", default_conf["model"]),
+            ("preprocessing", default_conf["preprocessing"]),
+            ("training", default_conf["training"]),
+            ("monitor", default_conf["monitor"]),
+        ]
+    )
 
     return populate_parser(parser, default_conf)
 
@@ -413,50 +457,54 @@ def get_train_args():
 def get_predict_args():
     parser = OrderedDict()
     default_conf = config.CONF
-    default_conf = OrderedDict([('testing', default_conf['testing'])])
+    default_conf = OrderedDict([("testing", default_conf["testing"])])
 
     # Add options for modelname
-    timestamp = default_conf['testing']['timestamp']
+    timestamp = default_conf["testing"]["timestamp"]
     timestamp_list = next(os.walk(paths.get_models_dir()))[1]
-    timestamp_list.remove('common')  # common files do not count as full model
+    timestamp_list.remove("common")  # common files do not count as full model
     timestamp_list = sorted(timestamp_list)
     if not timestamp_list:
-        timestamp['value'] = ''
+        timestamp["value"] = ""
     else:
-        timestamp['value'] = timestamp_list[-1]
-        timestamp['choices'] = timestamp_list
+        timestamp["value"] = timestamp_list[-1]
+        timestamp["choices"] = timestamp_list
 
     # Add data and url fields
-    parser['files'] = fields.Field(required=False,
-                                   missing=None,
-                                   type="file",
-                                   data_key="data",
-                                   location="form",
-                                   description="Select the audio file you want to classify.")
+    parser["files"] = fields.Field(
+        required=False,
+        missing=None,
+        type="file",
+        data_key="data",
+        location="form",
+        description="Select the audio file you want to classify.",
+    )
 
-    parser['urls'] = fields.Url(required=False,
-                                missing=None,
-                                description="Select an URL of the audio file you want to classify.")
+    parser["urls"] = fields.Url(
+        required=False,
+        missing=None,
+        description="Select an URL of the audio file you want to classify.",
+    )
 
     # missing action="append" --> append more than one url
 
     return populate_parser(parser, default_conf)
 
 
-def get_metadata(distribution_name='audioclas'):
+def get_metadata(distribution_name="audioclas"):
     """
     Function to read metadata
     """
 
     pkg = pkg_resources.get_distribution(distribution_name)
     meta = {
-        'Name': None,
-        'Version': None,
-        'Summary': None,
-        'Home-page': None,
-        'Author': None,
-        'Author-email': None,
-        'License': None,
+        "Name": None,
+        "Version": None,
+        "Summary": None,
+        "Home-page": None,
+        "Author": None,
+        "Author-email": None,
+        "License": None,
     }
 
     for line in pkg.get_metadata_lines("PKG-INFO"):

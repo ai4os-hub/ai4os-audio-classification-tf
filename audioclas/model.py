@@ -5,35 +5,55 @@ import os
 import numpy as np
 import tensorflow as tf
 
-from audioclas.embeddings import vggish_input, vggish_params, vggish_postprocess, vggish_slim
+from audioclas.embeddings import (
+    vggish_input,
+    vggish_params,
+    vggish_postprocess,
+    vggish_slim,
+)
 from audioclas import paths
 
 
-DEFAULT_EMBEDDING_CHECKPOINT = os.path.join(paths.get_models_dir(), 'common', 'vggish_model.ckpt')
-DEFAULT_PCA_PARAMS = os.path.join(paths.get_models_dir(), 'common', 'vggish_pca_params.npz')
+DEFAULT_EMBEDDING_CHECKPOINT = os.path.join(
+    paths.get_models_dir(), "common", "vggish_model.ckpt"
+)
+DEFAULT_PCA_PARAMS = os.path.join(
+    paths.get_models_dir(), "common", "vggish_pca_params.npz"
+)
 
 
-class ModelWrapper():
+class ModelWrapper:
     """
     Contains core functions to generate embeddings and classify them.
     Also contains any helper function required.
     """
 
-    def __init__(self, classifier_model, embedding_checkpoint=DEFAULT_EMBEDDING_CHECKPOINT,
-                 pca_params=DEFAULT_PCA_PARAMS):
-
+    def __init__(
+        self,
+        classifier_model,
+        embedding_checkpoint=DEFAULT_EMBEDDING_CHECKPOINT,
+        pca_params=DEFAULT_PCA_PARAMS,
+    ):
         # Initialize the classifier model
         self.session_classify = tf.keras.backend.get_session()
-        self.classify_model = tf.keras.models.load_model(classifier_model, compile=False)
+        self.classify_model = tf.keras.models.load_model(
+            classifier_model, compile=False
+        )
 
         # Initialize the vgg-ish embedding model
         self.graph_embedding = tf.Graph()
         with self.graph_embedding.as_default():
             self.session_embedding = tf.Session()
             vggish_slim.define_vggish_slim(training=False)
-            vggish_slim.load_vggish_slim_checkpoint(self.session_embedding, embedding_checkpoint)
-            self.features_tensor = self.session_embedding.graph.get_tensor_by_name(vggish_params.INPUT_TENSOR_NAME)
-            self.embedding_tensor = self.session_embedding.graph.get_tensor_by_name(vggish_params.OUTPUT_TENSOR_NAME)
+            vggish_slim.load_vggish_slim_checkpoint(
+                self.session_embedding, embedding_checkpoint
+            )
+            self.features_tensor = self.session_embedding.graph.get_tensor_by_name(
+                vggish_params.INPUT_TENSOR_NAME
+            )
+            self.embedding_tensor = self.session_embedding.graph.get_tensor_by_name(
+                vggish_params.OUTPUT_TENSOR_NAME
+            )
 
         # Prepare a postprocessor to munge the vgg-ish model embeddings.
         self.pproc = vggish_postprocess.Postprocessor(pca_params)
@@ -48,8 +68,9 @@ class ModelWrapper():
             numpy array of shape (x,128) where x is any arbitrary whole number >1.
         """
         examples_batch = vggish_input.wavfile_to_examples(wav_file)
-        [embedding_batch] = self.session_embedding.run([self.embedding_tensor],
-                                                       feed_dict={self.features_tensor: examples_batch})
+        [embedding_batch] = self.session_embedding.run(
+            [self.embedding_tensor], feed_dict={self.features_tensor: examples_batch}
+        )
         return self.pproc.postprocess(embedding_batch)
 
     def classify_embeddings(self, processed_embeddings):
@@ -62,7 +83,10 @@ class ModelWrapper():
         """
         output_tensor = self.classify_model.output
         input_tensor = self.classify_model.input
-        class_scores = output_tensor.eval(feed_dict={input_tensor: processed_embeddings}, session=self.session_classify)
+        class_scores = output_tensor.eval(
+            feed_dict={input_tensor: processed_embeddings},
+            session=self.session_classify,
+        )
         return class_scores
 
     def predict(self, wav_file, top_K=5, merge=True):
@@ -78,13 +102,18 @@ class ModelWrapper():
             output = np.mean(output, axis=0)  # take the mean across the batch
             lab = np.argsort(output)[::-1]  # sort labels in descending prob
             lab = lab[:top_K]  # keep only top_K labels
-            lab = np.expand_dims(lab, axis=0)  # add extra dimension to make to output have a shape (1, top_k)
+            lab = np.expand_dims(
+                lab, axis=0
+            )  # add extra dimension to make to output have a shape (1, top_k)
             prob = output[lab]
         else:
             lab = np.argsort(output, axis=1)[:, ::-1]  # sort labels in descending prob
             lab = lab[:, :top_K]  # keep only top_K labels
-            prob = output[np.repeat(np.arange(len(lab)), lab.shape[1]),
-                          lab.flatten()].reshape(lab.shape)  # retrieve corresponding probabilities
+            prob = output[
+                np.repeat(np.arange(len(lab)), lab.shape[1]), lab.flatten()
+            ].reshape(
+                lab.shape
+            )  # retrieve corresponding probabilities
 
         return lab, prob
 
@@ -107,7 +136,7 @@ class ModelWrapper():
         if 0 <= embeddings_ts < embeddings.shape[0]:
             embeddings = embeddings[embeddings_ts:, :]
         else:
-            raise ValueError('Invalid start time.')
+            raise ValueError("Invalid start time.")
 
         # Expand to upper 10s multiple (eg. 13s --> 20s) by repeating in loop
         if embeddings.shape[0] < 10:
@@ -117,12 +146,12 @@ class ModelWrapper():
                 new_embeddings = np.vstack((new_embeddings, embeddings))
         else:
             new_embeddings = np.vstack((embeddings, embeddings[:10, :]))
-        embeddings = new_embeddings[:int(new_embeddings.shape[0] // 10) * 10]
+        embeddings = new_embeddings[: int(new_embeddings.shape[0] // 10) * 10]
 
         # Prepare batch of 10s samples
         embeddings = embeddings.reshape(-1, 10, 128)
 
         # Normalize and move from uint8_to_float32
-        embeddings = (np.float32(embeddings) - 128.) / 128.
+        embeddings = (np.float32(embeddings) - 128.0) / 128.0
 
         return embeddings
