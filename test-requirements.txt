@@ -1,5 +1,4 @@
 flake8
-flake8-bugbear  # needed for black formatter
 pylint
 
 pytest
