@@ -5,7 +5,7 @@ description: |-
   This is a plug-and-play tool to perform audio classification with Deep Learning. It allows the user to classify their samples of audio as well as training their own classifier for a custom problem.
   The classifier is currently pretrained on the 527 high-level classes from the [AudioSet](https://research.google.com/audioset/) dataset.
   The PREDICT method expects an audio file as input (or the url of a audio file) and will return a JSON with the top 5 predictions. Most audio file formats are supported (see [FFMPEG](https://www.ffmpeg.org/) compatible formats).
-  <img class=''fit'', src=''https://raw.githubusercontent.com/ai4os-hub/ai4os-audio-classification-tf/main/docs/images/demo.png''/>
+  <img class='fit', src='https://raw.githubusercontent.com/ai4os-hub/ai4os-audio-classification-tf/main/docs/images/demo.png'/>
   
   **References**
   * Jort F. Gemmeke, Daniel P. W. Ellis, Dylan Freedman, Aren Jansen, Wade Lawrence, R. Channing Moore, Manoj Plakal, Marvin Ritter, [Audio set: An ontology and human-labeled dataset for audio events](https://static.googleusercontent.com/media/research.google.com/en//pubs/archive/45857.pdf), IEEE ICASSP, 2017.
