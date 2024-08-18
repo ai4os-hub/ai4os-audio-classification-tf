@@ -1,0 +1,5 @@
+FROM indigodatacloud/ci-images:python3.6
+ARG DEBIAN_FRONTEND=noninteractive
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends libmagic1 && \
+    rm -rf /var/lib/apt/lists/*

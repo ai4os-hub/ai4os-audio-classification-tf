@@ -1,4 +1,4 @@
-DEEP Open Catalogue: Audio classifier
+AI4OS/DEEP Open Catalogue: Audio classifier
 =====================================
 
 [![Build Status](https://jenkins.services.ai4os.eu/buildStatus/icon?job=AI4OS-hub%2Fai4os-audio-classification-tf%2Fmain)](https://jenkins.services.ai4os.eu/job/AI4OS-hub/job/ai4os-audio-classification-tf/job/main/)
