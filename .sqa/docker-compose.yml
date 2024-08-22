@@ -10,7 +10,7 @@ services:
       dockerfile: Dockerfile.cicd
     command: >
       sh -c "git config --global --add safe.directory /srv &&
-             /usr/sbin/sshd -D"
+             tail -f /dev/null"
     volumes:
       - type: bind
         source: ./
