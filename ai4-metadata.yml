@@ -2,9 +2,13 @@ metadata_version: 2.0.0
 title: Train an audio classifier
 summary: Train your own audio classifier with your custom dataset. It comes also pretrained on the 527 AudioSet classes.
 description: |- 
-  This is a plug-and-play tool to perform audio classification with Deep Learning. It allows the user to classify their samples of audio as well as training their own classifier for a custom problem.
+  This is a plug-and-play tool to perform audio classification with Deep Learning. 
+  It allows the user to classify their samples of audio as well as training their own classifier for a custom problem.
+  
   The classifier is currently pretrained on the 527 high-level classes from the [AudioSet](https://research.google.com/audioset/) dataset.
-  The PREDICT method expects an audio file as input (or the url of a audio file) and will return a JSON with the top 5 predictions. Most audio file formats are supported (see [FFMPEG](https://www.ffmpeg.org/) compatible formats).
+  The PREDICT method expects an audio file as input (or the url of a audio file) and will return a JSON with the top 5 predictions. 
+  Most audio file formats are supported (see [FFMPEG](https://www.ffmpeg.org/) compatible formats).
+  
   <img class='fit', src='https://raw.githubusercontent.com/ai4os-hub/ai4os-audio-classification-tf/main/docs/images/demo.png'/>
   
   **References**
