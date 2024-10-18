@@ -20,7 +20,7 @@ dates:
   created: '2019-09-01'
   updated: '2024-08-12'
 links:
-  source_code: http://github.com/ai4os-hub/ai4os-audio-classification-tf
+  source_code: https://github.com/ai4os-hub/ai4os-audio-classification-tf
   docker_image: ai4oshub/ai4os-audio-classification-tf
   ai4_template: ai4-template/1.9.9
   dataset: https://research.google.com/audioset
