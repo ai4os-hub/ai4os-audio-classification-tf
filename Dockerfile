@@ -30,6 +30,7 @@ RUN DEBIAN_FRONTEND=noninteractive apt-get update && \
          curl \
          wget \
          psmisc \
+         unzip \
          python3-setuptools \
          python3-pip \
          python3-wheel && \
@@ -47,14 +48,7 @@ ENV LANG C.UTF-8
 WORKDIR /srv
 
 # Install rclone
-RUN wget https://downloads.rclone.org/rclone-current-linux-amd64.deb && \
-    dpkg -i rclone-current-linux-amd64.deb && \
-    apt-get install -f && \
-    mkdir /srv/.rclone/ && touch /srv/.rclone/rclone.conf && \
-    rm rclone-current-linux-amd64.deb && \
-    apt-get clean && \
-    rm -rf /var/lib/apt/lists/* && \
-    rm -rf /tmp/*
+RUN curl https://rclone.org/install.sh | bash
 
 # Initialization scripts
 # deep-start can install JupyterLab or VSCode if requested
